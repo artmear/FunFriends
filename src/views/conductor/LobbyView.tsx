@@ -19,7 +19,6 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
     const playerSubscription = supabase.channel(uniqueChannelName);
 
     const setupLobby = async () => {
-      // Create the randomized room in the DB
       const { data: roomData } = await supabase
         .from('rooms')
         .upsert({ room_code: roomCode, status: 'LOBBY' }, { onConflict: 'room_code' })
@@ -28,7 +27,6 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
 
       if (!roomData || !isMounted) return;
 
-      // Fetch existing players if the conductor reloaded the page
       const { data: existingPlayers } = await supabase
         .from('players')
         .select('id, name')
@@ -38,17 +36,25 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
         setPlayers(existingPlayers);
       }
 
-      // Listen to incoming real-time inserts for this specific room ID
       playerSubscription
         .on(
           'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'players', filter: `room_id=eq.${roomData.id}` },
+          { event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${roomData.id}` },
           (payload) => {
-            const newPlayer = payload.new as Player;
-            setPlayers((prev) => {
-              if (prev.some((p) => p.id === newPlayer.id)) return prev;
-              return [...prev, newPlayer];
-            });
+            if (!isMounted) return;
+
+            if (payload.eventType === 'INSERT') {
+              const newPlayer = payload.new as Player;
+              setPlayers((prev) => {
+                if (prev.some((p) => p.id === newPlayer.id)) return prev;
+                return [...prev, newPlayer];
+              });
+            }
+            
+            else if (payload.eventType === 'DELETE') {
+              const oldPlayer = payload.old as { id: string };
+              setPlayers((prev) => prev.filter((p) => p.id !== oldPlayer.id));
+            }
           }
         )
         .subscribe();
@@ -67,7 +73,6 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
       alert('Wait for players to join first!');
       return;
     }
-
     setLoading(true);
     try {
       await supabase.from('rooms').update({ status: 'WRITING' }).eq('room_code', roomCode);

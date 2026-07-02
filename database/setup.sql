@@ -35,3 +35,5 @@ CREATE TABLE votes (
 );
 
 ALTER PUBLICATION supabase_realtime ADD TABLE rooms, rounds, votes, players;
+
+ALTER TABLE players REPLICA IDENTITY FULL;

@@ -104,7 +104,7 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
         </div>
 
         <button onClick={handleStartGame} disabled={loading} className="btn btn-primary" style={{ height: '70px', fontSize: '1.6rem', background: 'var(--truth-green)', marginTop: '40px' }}>
-          {loading ? 'Processing...' : 'Start Match (Go to Writing)'}
+          {loading ? 'Processing...' : 'Start Match'}
         </button>
       </div>
 

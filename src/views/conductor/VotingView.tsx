@@ -78,7 +78,7 @@ export default function ConductorVotingView({ currentRoundId, roomCode }: { curr
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '40px', gap: '30px', textAlign: 'center' }}>
-      <h1 style={{ fontSize: '3rem', letterSpacing: '1px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>⏱VOTE RUNNING</h1>
+      <h1 style={{ fontSize: '3rem', letterSpacing: '1px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>⏱ VOTE RUNNING</h1>
       
       <div style={{ fontSize: '11rem', fontWeight: '900', color: timer < 10 ? 'var(--lie-red)' : '#fff', transition: 'color 0.5s ease', fontFamily: 'monospace' }}>
         {timer}<span style={{ fontSize: '4rem' }}>s</span>

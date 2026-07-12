@@ -10,6 +10,8 @@ interface Player {
 export default function LobbyView({ roomCode }: { roomCode: string }) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  const [selectedGame, setSelectedGame] = useState<'2L1T' | 'WYR'>('2L1T');
 
   const gameUrl = `http://10.227.150.144:5173/`;
 
@@ -50,7 +52,6 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
                 return [...prev, newPlayer];
               });
             }
-            
             else if (payload.eventType === 'DELETE') {
               const oldPlayer = payload.old as { id: string };
               setPlayers((prev) => prev.filter((p) => p.id !== oldPlayer.id));
@@ -75,7 +76,10 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
     }
     setLoading(true);
     try {
-      await supabase.from('rooms').update({ status: 'WRITING' }).eq('room_code', roomCode);
+      await supabase
+        .from('rooms')
+        .update({ status: 'WRITING', game_type: selectedGame })
+        .eq('room_code', roomCode);
     } catch (err) {
       console.error(err);
     } finally {
@@ -99,17 +103,35 @@ export default function LobbyView({ roomCode }: { roomCode: string }) {
       <div style={{ display: 'flex', flexDirection: 'column', height: '80%', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '40px', borderRadius: '20px', border: '1px solid #262636' }}>
         <div>
           <h2 style={{ fontSize: '2.2rem', marginBottom: '30px', borderBottom: '2px solid #262636', paddingBottom: '15px' }}>👥 Active Lobby ({players.length})</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', maxHeight: '450px', overflowY: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', maxHeight: '300px', overflowY: 'auto', marginBottom: '20px' }}>
             {players.map((player) => (
               <div key={player.id} style={{ fontSize: '1.6rem', padding: '12px 20px', backgroundColor: '#1f1f2e', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                {player.name}
+                ⚡ {player.name}
               </div>
             ))}
           </div>
         </div>
 
-        <button onClick={handleStartGame} disabled={loading} className="btn btn-primary" style={{ height: '70px', fontSize: '1.6rem', background: 'var(--truth-green)', marginTop: '40px' }}>
-          {loading ? 'Processing...' : 'Start Match'}
+        <div style={{ backgroundColor: '#13131a', padding: '20px', borderRadius: '12px', border: '1px solid #262636' }}>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '12px', fontWeight: 'bold', fontSize: '1.1rem' }}>SELECT GAME MODE:</p>
+          <div style={{ display: 'flex', gap: '15px' }}>
+            <button 
+              onClick={() => setSelectedGame('2L1T')}
+              style={{ flex: 1, padding: '14px', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '8px', cursor: 'pointer', border: selectedGame === '2L1T' ? '2px solid var(--primary)' : '1px solid #262636', backgroundColor: selectedGame === '2L1T' ? '#1e1b4b' : 'transparent', color: '#fff', transition: 'all 0.2s' }}
+            >
+              2 Lies 1 Truth
+            </button>
+            <button 
+              onClick={() => setSelectedGame('WYR')}
+              style={{ flex: 1, padding: '14px', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '8px', cursor: 'pointer', border: selectedGame === 'WYR' ? '2px solid var(--primary)' : '1px solid #262636', backgroundColor: selectedGame === 'WYR' ? '#1e1b4b' : 'transparent', color: '#fff', transition: 'all 0.2s' }}
+            >
+              Would You Rather
+            </button>
+          </div>
+        </div>
+
+        <button onClick={handleStartGame} disabled={loading} className="btn btn-primary" style={{ height: '70px', fontSize: '1.6rem', background: 'var(--truth-green)', marginTop: '30px' }}>
+          {loading ? 'Processing...' : `Start Match`}
         </button>
       </div>
 

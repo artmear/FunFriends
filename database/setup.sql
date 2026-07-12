@@ -37,3 +37,5 @@ CREATE TABLE votes (
 ALTER PUBLICATION supabase_realtime ADD TABLE rooms, rounds, votes, players;
 
 ALTER TABLE players REPLICA IDENTITY FULL;
+
+ALTER TABLE rooms ADD COLUMN game_type TEXT NOT NULL DEFAULT '2L1T';

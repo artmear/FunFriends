@@ -13,6 +13,8 @@ export default function PlayerVoteView({ currentRoundId }: { currentRoundId: str
   const [loading, setLoading] = useState(false);
   
   const [statements, setStatements] = useState<RoundStatements | null>(null);
+  
+  const [gameType, setGameType] = useState<string>('2L1T');
 
   useEffect(() => {
     if (!currentRoundId) return;
@@ -20,7 +22,7 @@ export default function PlayerVoteView({ currentRoundId }: { currentRoundId: str
     const fetchRoundStatements = async () => {
       const { data, error } = await supabase
         .from('rounds')
-        .select('statement_1, statement_2, statement_3')
+        .select('statement_1, statement_2, statement_3, rooms(game_type)')
         .eq('id', currentRoundId)
         .maybeSingle();
 
@@ -30,12 +32,20 @@ export default function PlayerVoteView({ currentRoundId }: { currentRoundId: str
       }
 
       if (data) {
-        setStatements(data);
+        setStatements({
+          statement_1: data.statement_1,
+          statement_2: data.statement_2,
+          statement_3: data.statement_3,
+        });
+
+        const roomContext = data.rooms as unknown as { game_type: string } | null;
+        if (roomContext) {
+          setGameType(roomContext.game_type);
+        }
       }
     };
 
     fetchRoundStatements();
-    
     setHasVoted(false);
   }, [currentRoundId]);
 
@@ -73,7 +83,10 @@ export default function PlayerVoteView({ currentRoundId }: { currentRoundId: str
     <div className="mobile-container">
       <div className="mobile-card" style={{ textAlign: 'center' }}>
         <p style={{ color: 'var(--primary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.85rem' }}>Round Active</p>
-        <h2 style={{ marginTop: '8px', fontSize: '1.4rem' }}>Identify the absolute TRUTH:</h2>
+        
+        <h2 style={{ marginTop: '8px', fontSize: '1.4rem' }}>
+          {gameType === 'WYR' ? 'Which option do you prefer?' : 'Identify the absolute TRUTH:'}
+        </h2>
       </div>
 
       <div className="game-options-grid">
@@ -81,28 +94,30 @@ export default function PlayerVoteView({ currentRoundId }: { currentRoundId: str
           onClick={() => castVote(1)} 
           disabled={loading || !statements} 
           className="btn btn-primary" 
-          style={{ backgroundColor: '#1e1b4b', border: '2px solid var(--primary)', minHeight: '60px', height: 'auto', fontSize: '1.1rem', padding: '12px' }}
+          style={{ backgroundColor: gameType === 'WYR' ? '#1e3a8a' : '#1e1b4b', border: gameType === 'WYR' ? '2px solid #3b82f6' : '2px solid var(--primary)', minHeight: '60px', height: 'auto', fontSize: '1.1rem', padding: '12px' }}
         >
-          {statements ? statements.statement_1 : 'Loading statement 1...'}
+          {statements ? statements.statement_1 : 'Loading Option A...'}
         </button>
 
         <button 
           onClick={() => castVote(2)} 
           disabled={loading || !statements} 
           className="btn btn-primary" 
-          style={{ backgroundColor: '#1e1b4b', border: '2px solid var(--primary)', minHeight: '60px', height: 'auto', fontSize: '1.1rem', padding: '12px' }}
+          style={{ backgroundColor: gameType === 'WYR' ? '#701a75' : '#1e1b4b', border: gameType === 'WYR' ? '2px solid #d946ef' : '2px solid var(--primary)', minHeight: '60px', height: 'auto', fontSize: '1.1rem', padding: '12px' }}
         >
-          {statements ? statements.statement_2 : 'Loading statement 2...'}
+          {statements ? statements.statement_2 : 'Loading Option B...'}
         </button>
 
-        <button 
-          onClick={() => castVote(3)} 
-          disabled={loading || !statements} 
-          className="btn btn-primary" 
-          style={{ backgroundColor: '#1e1b4b', border: '2px solid var(--primary)', minHeight: '60px', height: 'auto', fontSize: '1.1rem', padding: '12px' }}
-        >
-          {statements ? statements.statement_3 : 'Loading statement 3...'}
-        </button>
+        {gameType !== 'WYR' && (
+          <button 
+            onClick={() => castVote(3)} 
+            disabled={loading || !statements} 
+            className="btn btn-primary" 
+            style={{ backgroundColor: '#1e1b4b', border: '2px solid var(--primary)', minHeight: '60px', height: 'auto', fontSize: '1.1rem', padding: '12px' }}
+          >
+            {statements ? statements.statement_3 : 'Loading statement 3...'}
+          </button>
+        )}
       </div>
     </div>
   );

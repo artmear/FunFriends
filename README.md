@@ -1,7 +1,6 @@
-# 2LIES1TRUTH - Realtime Party Game
+# FunFriends - Realtime Multi-Game Party Hub
 
-An interactive, synchronous real-time party game inspired by the famous "Two Truths and a Lie" icebreaker. This project leverages **React (Vite + TypeScript)** on the front-end and **Supabase** on the back-end to manage game states, scores, and instant voting mechanics via WebSockets (PostgreSQL Realtime).
-
+An interactive, synchronous real-time party game platform designed for local gatherings and crowds. Inspired by classic party suites, this project transforms any primary screen  into a centralized game dashboard, while players interact seamlessly and simultaneously using their smartphones as controllers.
 
 ## Prerequisites
 
@@ -17,8 +16,8 @@ Before setting up the project locally, ensure you have the following:
 ### 1. Clone the Repository
 Open your terminal and execute the following commands to download the project:
 ```bash
-git clone git@github.com:artmear/2Lies1Truth.git
-cd 2LIES1TRUTH
+git clone git@github.com:artmear/FunFriends.git
+cd FunFriends
 ```
 
 ### 2. Install Dependencies
